@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+LABEL maintainer="Recyde App"
+
+RUN apt update && apt upgrade -y
+RUN apt install -y --fix-missing --allow-downgrades gcc g++ binutils python3-venv postgresql-client libpq-dev wkhtmltopdf libxslt-dev libxml2-dev libjpeg-dev zlib1g-dev
+
+COPY ./requirements.txt /tmp/requirements.txt
+
+RUN python3 -m venv /py && \
+/py/bin/pip install --upgrade pip setuptools==65.5.1 && \
+/py/bin/pip install -r /tmp/requirements.txt
+
+WORKDIR /app
+COPY . /app
+RUN ls -la
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH="/py/bin:$PATH"
+
+EXPOSE 8000

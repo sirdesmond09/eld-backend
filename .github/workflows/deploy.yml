@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        id: aws_creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{secrets.AWS_ROLE}}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: GitHub-OIDC
+          output-credentials: true
+
+      - name: Generate deployment package and get current timestamp
+        run: |
+          zip -r deploy.zip . -x '*.git*' 'node_modules/*' '*.pyc' '__pycache__/*'
+          echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ steps.aws_creds.outputs.aws-access-key-id }}
+          aws_secret_key: ${{ steps.aws_creds.outputs.aws-secret-access-key }}
+          aws_session_token: ${{ steps.aws_creds.outputs.aws-session-token }}
+          application_name: ${{ secrets.AWS_EB_APP_NAME }}
+          environment_name: ${{ github.event.inputs.environment }}
+          version_label: ${{ github.sha }}-${{ env.timestamp }}
+          region: ${{ secrets.AWS_REGION }}
+          deployment_package: deploy.zip 

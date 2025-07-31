@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Log Summary</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .date-badge {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .activity-timeline {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-type {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .driving {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+        .on-duty {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .off-duty {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .sleeper {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚛 ELD Trip Planner</div>
+            <div class="date-badge">{{ log_date }}</div>
+        </div>
+        
+        <h1>Daily Log Summary</h1>
+        
+        <p>Hi {{ first_name }},</p>
+        
+        <p>Here's your driving activity summary for {{ log_date }}:</p>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">{{ total_driving_time }}</div>
+                <div class="stat-label">Hours Driving</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ total_miles }}</div>
+                <div class="stat-label">Miles Driven</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ total_on_duty }}</div>
+                <div class="stat-label">Hours On Duty</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ remaining_hours }}</div>
+                <div class="stat-label">Hours Remaining</div>
+            </div>
+        </div>
+        
+        <div class="activity-timeline">
+            <h3>Activity Timeline</h3>
+            {% for activity in activities %}
+            <div class="activity-item">
+                <div>
+                    <span class="activity-type {{ activity.type }}">{{ activity.display_name }}</span>
+                    <span>{{ activity.location }}</span>
+                </div>
+                <div>{{ activity.start_time }} - {{ activity.end_time }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="summary-card">
+            <h3>Compliance Status</h3>
+            <p><strong>Status:</strong> 
+                {% if is_compliant %}
+                    <span style="color: #27ae60;">✅ Compliant</span>
+                {% else %}
+                    <span style="color: #e74c3c;">⚠️ Attention Required</span>
+                {% endif %}
+            </p>
+            {% if not is_compliant %}
+            <p><strong>Issues:</strong></p>
+            <ul>
+                {% for violation in violations %}
+                <li>{{ violation }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{{ view_logs_url }}" class="cta-button">View Full Logs</a>
+        </div>
+        
+        <p>Keep up the great work staying compliant with HOS regulations!</p>
+        
+        <div class="footer">
+            <p>This summary was automatically generated from your ELD data.</p>
+            <p>Questions? Contact your fleet manager or visit our support center.</p>
+        </div>
+    </div>
+</body>
+</html> 

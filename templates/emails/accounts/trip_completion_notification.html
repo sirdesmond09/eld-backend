@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Completed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .trip-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚛 ELD Trip Planner</div>
+            <div class="success-icon">✅</div>
+        </div>
+        
+        <h1>Trip Completed Successfully!</h1>
+        
+        <p>Hi {{ first_name }},</p>
+        
+        <p>Congratulations! You have successfully completed your trip. Here are the details:</p>
+        
+        <div class="trip-details">
+            <div class="detail-row">
+                <span class="detail-label">Trip ID:</span>
+                <span>{{ trip_id }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">From:</span>
+                <span>{{ pickup_location }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">To:</span>
+                <span>{{ dropoff_location }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Distance:</span>
+                <span>{{ total_distance }} miles</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Duration:</span>
+                <span>{{ total_duration }} hours</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Completed:</span>
+                <span>{{ completion_date }}</span>
+            </div>
+        </div>
+        
+        <p>Your electronic logs have been automatically generated and are ready for review.</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ view_logs_url }}" class="cta-button">View Trip Logs</a>
+        </div>
+        
+        <p>If you have any questions about this trip or need to make any corrections, please contact your fleet manager or log into your account.</p>
+        
+        <div class="footer">
+            <p>Thank you for using ELD Trip Planner!</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html> 

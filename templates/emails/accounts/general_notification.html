@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .notification-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .notification-icon.info {
+            color: #3498db;
+        }
+        .notification-icon.success {
+            color: #27ae60;
+        }
+        .notification-icon.warning {
+            color: #f39c12;
+        }
+        .notification-icon.error {
+            color: #e74c3c;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .notification-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+        .notification-box.info {
+            background: #eaf4fd;
+            border-color: #3498db;
+        }
+        .notification-box.success {
+            background: #eafaf1;
+            border-color: #27ae60;
+        }
+        .notification-box.warning {
+            background: #fef9e7;
+            border-color: #f39c12;
+        }
+        .notification-box.error {
+            background: #fdeaea;
+            border-color: #e74c3c;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .cta-button.success {
+            background: #27ae60;
+        }
+        .cta-button.warning {
+            background: #f39c12;
+        }
+        .cta-button.error {
+            background: #e74c3c;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚛 ELD Trip Planner</div>
+            <div class="notification-icon {{ notification_type }}">
+                {% if notification_type == 'info' %}ℹ️
+                {% elif notification_type == 'success' %}✅
+                {% elif notification_type == 'warning' %}⚠️
+                {% elif notification_type == 'error' %}❌
+                {% else %}📢
+                {% endif %}
+            </div>
+        </div>
+        
+        <h1>{{ title }}</h1>
+        
+        <p>Hi {{ first_name }},</p>
+        
+        <div class="notification-box {{ notification_type }}">
+            {{ message|safe }}
+        </div>
+        
+        {% if additional_info %}
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3>Additional Information:</h3>
+            {{ additional_info|safe }}
+        </div>
+        {% endif %}
+        
+        {% if action_url and action_text %}
+        <div style="text-align: center;">
+            <a href="{{ action_url }}" class="cta-button {{ notification_type }}">{{ action_text }}</a>
+        </div>
+        {% endif %}
+        
+        {% if contact_info %}
+        <p><strong>Need Help?</strong> {{ contact_info }}</p>
+        {% endif %}
+        
+        <div class="footer">
+            <p>You received this notification because you're subscribed to ELD Trip Planner updates.</p>
+            <p>Timestamp: {{ timestamp }}</p>
+            {% if unsubscribe_url %}
+            <p><a href="{{ unsubscribe_url }}" style="color: #999;">Unsubscribe from notifications</a></p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

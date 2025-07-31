@@ -1,0 +1,106 @@
+version: '3.10'
+
+x-secrets: &secrets
+  - DB_HOST=${DB_HOST}
+  - DB_NAME=${DB_NAME}
+  - DB_USER=${DB_USER}
+  - DB_PASSWORD=${DB_PASSWORD}
+  - SECRET_KEY=${SECRET_KEY}
+  - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+  - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+  - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+  # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+  # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  # - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
+  - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+  # - AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
+  - REDIS_URL=${REDIS_URL}
+  - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+  - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+  - SUPERUSEREMAIL=${SUPERUSEREMAIL}
+  - APP_NAME=${APP_NAME}
+  - APP_VERSION=${APP_VERSION}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: "./docker/dockerfile"
+    command: >
+      sh -c "
+              python manage.py wait_for_db &&
+              python manage.py makemigrations --noinput &&
+              python manage.py migrate --noinput &&
+              python -u manage.py runserver 0.0.0.0:8000
+            "
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment: *secrets
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  db:
+    image: postgres:alpine3.19
+    container_name: recyde-db
+    volumes:
+      - recyde-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5440:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: recyde-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8025/api/v1/messages"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    image: redis:alpine3.17
+    container_name: recyde-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  celery:
+    build:
+      context: .
+      dockerfile: "./docker/dockerfile"
+    volumes:
+      - .:/app
+    working_dir: /app
+    restart: always
+    command: "python -m celery -A config worker -l info --beat --pool=solo"
+    container_name: recyde-celery
+    environment: *secrets
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  recyde-db-data:
