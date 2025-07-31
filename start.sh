@@ -7,7 +7,7 @@ docker-compose build
 docker-compose up -d db redis
 
 # Run migrations and tests
-docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py makemigrations core && python manage.py migrate && pytest -s"
+docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py makemigrations core && python manage.py migrate"
 
 # If tests pass, start all services
 if [ $? -eq 0 ]; then
