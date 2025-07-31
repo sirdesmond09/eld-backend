@@ -136,15 +136,26 @@ class AccountLoginSerializer(serializers.Serializer):
 
     def perform_authentication(self, request):
         user = authenticate(**self.validated_data, request=request)
+        if user is None:
+            raise serializers.ValidationError(
+                "Invalid credentials. Please check your email and password."
+            )
         self.instance = user
         return user
 
-    def to_representation(self, instance: User):
+    def to_representation(self, instance):
+        # Get the user from self.instance if instance is not a User object
+        if not hasattr(instance, 'is_email_verified'):
+            user = self.instance
+        else:
+            user = instance
+            
         # Auto-verify user on login if not already verified
-        if not instance.is_email_verified:
-            instance.is_email_verified = True
-            instance.save(update_fields=["is_email_verified"])
-        return AuthSerializer(instance).data
+        if hasattr(user, 'is_email_verified') and not user.is_email_verified:
+            user.is_email_verified = True
+            user.save(update_fields=["is_email_verified"])
+            
+        return AuthSerializer(user).data
 
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
