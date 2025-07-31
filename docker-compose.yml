@@ -46,9 +46,9 @@ services:
 
   db:
     image: postgres:alpine3.19
-    container_name: recyde-db
+    container_name: ecotrack-db
     volumes:
-      - recyde-db-data:/var/lib/postgresql/data
+      - ecotrack-db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -63,7 +63,7 @@ services:
 
   mailpit:
     image: axllent/mailpit:latest
-    container_name: recyde-mailpit
+    container_name: ecotrack-mailpit
     ports:
       - "1025:1025"
       - "8025:8025"
@@ -76,7 +76,7 @@ services:
 
   redis:
     image: redis:alpine3.17
-    container_name: recyde-redis
+    container_name: ecotrack-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -94,7 +94,7 @@ services:
     working_dir: /app
     restart: always
     command: "python -m celery -A config worker -l info --beat --pool=solo"
-    container_name: recyde-celery
+    container_name: ecotrack-celery
     environment: *secrets
     depends_on:
       db:
@@ -103,4 +103,4 @@ services:
         condition: service_healthy
 
 volumes:
-  recyde-db-data:
+  ecotrack-db-data:
