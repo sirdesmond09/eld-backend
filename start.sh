@@ -12,7 +12,7 @@ docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage
 # If tests pass, start all services
 if [ $? -eq 0 ]; then
     echo "Tests passed! Starting all services..."
-    docker-compose up
+    docker-compose up -d
 else
     echo "Tests failed! Please fix the issues before starting the services."
     exit 1
